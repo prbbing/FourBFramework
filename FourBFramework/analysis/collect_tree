@@ -1,0 +1,85 @@
+#!/bin/bash
+# Copyright (c) 2008 by S.Chekanov (chakanau@hep.anl.gov). 
+
+"exec" "python" "-Wignore" "$0" "$@"
+
+__version__ = '1.0'
+__author__  = 'Sergei Chekanov  (chakanau@hep.anl.gov)'
+__doc__     = 'Create analysis.h'
+
+import os,sys,re,shutil
+import glob
+import time
+
+from types import *
+from array import array
+import os; import fileinput; import string;
+from ROOT import gROOT,gStyle,TTree,TCanvas,TFile,TLine,TLegend,TPostScript
+from ROOT import TH2F,TCut,TPad,TH1F,TF1,TObject,TPaveText,TGraph,TGraphAsymmErrors
+from ROOT import TTree,gDirectory
+from os import path
+import shutil
+
+
+MyClass="analysis"
+
+
+# check grid enviroment 
+vdt=os.environ.get('ROOTSYS')
+if (vdt == None) :  
+  print term.render('${RED} ROOTSYS variable  ${NORMAL}')
+  print term.render('${RED} Setup ROOT first ${NORMAL}')
+  sys.exit(1);
+
+# set true for debugging options
+DEBUG=False 
+
+
+PWDdir="";
+f = os.popen("pwd", "r")
+for l in f.xreadlines():
+       l=l.strip()
+       PWDdir=l;
+       break;
+
+print PWDdir;
+
+lines=[]
+data=[]
+ifile=open('data.in','r')
+lines=lines+ifile.readlines()      # read file into list of lines
+ifile.close()
+for i in range(len(lines)):
+              xline=lines[i]
+              xline=xline.strip()
+              if xline.startswith("#"): continue
+              ii=xline.find("root");
+              if (ii>-1):
+                     data.append(xline)  
+
+print "Build tree for"+data[0]
+
+############## generate hearder ################
+f1=TFile(data[0])
+f1.ls()
+mytree=raw_input('Please enter a valid ROOT tree from the output above:')
+print "\"",mytree,"\" was selected!"
+
+tree=f1.Get(mytree)
+if type(tree) is NoneType: 
+                      print "\"",mytree,"\" is not valid tree!"
+                      sys.exit(1);  
+
+# generate
+tree.MakeClass(MyClass);
+# shutil.copyfile(mytree+'.h', 'myjob.h')
+# shutil.copyfile(mytree+'.C', 'myjob.cxx') 
+os.remove(MyClass+'.C')
+
+print MyClass+" created, but include also lines:"
+print "using namespace std;";
+print "#include <vector>"; 
+print "#include <map>";
+print "#include <TClonesArray.h>" 
+print "#include <TLorentzVector.h>" 
+

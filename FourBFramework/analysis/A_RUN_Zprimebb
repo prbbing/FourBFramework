@@ -1,0 +1,102 @@
+#!/bin/bash
+#
+CURRENT_DIR=`pwd`
+
+source setenv.sh
+
+
+# total number of events
+TotEvents=10000000
+
+
+# atlas2
+#DIR="/data3/chekanov/MC/Pythia8EvtGen_A14NNPDF23LO_jetjet"
+
+DIR="/atlasfs/atlas/local/rwang/Dibjet/MC15/2016highmass/Jan20_2017"
+#DIR="/cnfs/data1/users/rwang/Ntuples/MC/"
+OUTDIR="Zprimebb_noystar/"
+
+if [ ! -d "out/$OUTDIR" ]; then
+  mkdir out/$OUTDIR/
+fi
+
+printstatus() {
+T=`date`
+echo "Launching $NODES jobs: $T" 
+NJOBS=`ps rux  | grep -e "main" | wc -l`
+while [ $NJOBS -gt 0  ]
+do
+    NJOBS=`ps rux  | grep -e "main" | wc -l`
+    T=`date`
+    echo "Running $NJOBS jobs: $T"
+    sleep 5
+done
+echo "Done!"
+date
+}
+
+run() {
+SET=Zprimebb$1
+echo $DIR/$2 > inputs/zprime/${SET}
+echo "Look at "$DIR/$2
+nohup main zprime/${SET} Inclusive InclusiveOneB ExclusiveOneB ExclusiveTwoB >& "inputs/zprime/"${SET}".log" 2>&1 &
+}
+
+make clean
+make -f MakefileMC
+
+
+
+NSYST=1
+n=0
+#------------------------------ start loop ----------------------------
+while  [ $n -lt $NSYST ]
+do 
+
+echo "------------ Do systematics = $n" 
+if [ ! -d "out/$OUTDIR/sys$n/" ]; then
+  mkdir out/$OUTDIR/sys$n/
+fi
+
+cat > $CURRENT_DIR/main.ini <<!
+events $TotEvents
+debug 0
+systematics $n
+!
+
+if [ ! -d "inputs/zprime" ]; then
+  mkdir inputs/zprime
+fi
+if [ ! -d "output/zprime" ]; then
+  mkdir output/zprime
+fi
+
+rm -f  inputs/zprime/*
+rm -rf output/zprime/*
+
+#run 600 user.rwang.mc15_13TeV.301920.Pythia8EvtGen_A14NNPDF23LO_Zprimebb600.ZPrimeBB_20170123_tree.root
+#run 800 user.rwang.mc15_13TeV.301921.Pythia8EvtGen_A14NNPDF23LO_Zprimebb800.ZPrimeBB_20170123_tree.root
+#run 1000 user.rwang.mc15_13TeV.301922.Pythia8EvtGen_A14NNPDF23LO_Zprimebb1000.ZPrimeBB_20170123_tree.root
+#run 1250 user.rwang.mc15_13TeV.301923.Pythia8EvtGen_A14NNPDF23LO_Zprimebb1250.ZPrimeBB_20170123_tree.root
+#run 1500 user.rwang.mc15_13TeV.301924.Pythia8EvtGen_A14NNPDF23LO_Zprimebb1500.ZPrimeBB_20170123_tree.root
+#run 1750 user.rwang.mc15_13TeV.301925.Pythia8EvtGen_A14NNPDF23LO_Zprimebb1750.ZPrimeBB_20170123_tree.root
+run 2000 user.rwang.mc15_13TeV.301926.Pythia8EvtGen_A14NNPDF23LO_Zprimebb2000.ZPrimeBB_20170123_tree.root
+#run 2500 user.rwang.mc15_13TeV.301927.Pythia8EvtGen_A14NNPDF23LO_Zprimebb2500.ZPrimeBB_20170123_tree.root
+#run 3000 user.rwang.mc15_13TeV.301928.Pythia8EvtGen_A14NNPDF23LO_Zprimebb3000.ZPrimeBB_20170123_tree.root
+#run 4000 user.rwang.mc15_13TeV.301929.Pythia8EvtGen_A14NNPDF23LO_Zprimebb4000.ZPrimeBB_20170304_tree.root
+#run 5000 user.rwang.mc15_13TeV.301930.Pythia8EvtGen_A14NNPDF23LO_Zprimebb5000.ZPrimeBB_20170304_tree.root
+#run 1000 mc15_13TeV.301922.Pythia8EvtGen_A14NNPDF23LO_Zprimebb1000.merge.AOD.AFII.20161213.tree.root
+#run 2000 mc15_13TeV.301926.Pythia8EvtGen_A14NNPDF23LO_Zprimebb2000.merge.AOD.AFII.20161213.tree.root
+#run 5000 mc15_13TeV.301930.Pythia8EvtGen_A14NNPDF23LO_Zprimebb5000.merge.AOD.AFII.20161213.tree.root
+#run 1000 mc15_13TeV.301922.Pythia8EvtGen_A14NNPDF23LO_Zprimebb1000.merge.AOD.FullSim.20161214.tree.root
+#run 2000 mc15_13TeV.301926.Pythia8EvtGen_A14NNPDF23LO_Zprimebb2000.merge.AOD.FullSim.20161214.tree.root
+#run 5000 mc15_13TeV.301930.Pythia8EvtGen_A14NNPDF23LO_Zprimebb5000.merge.AOD.FullSim.20161214.tree.root
+printstatus
+mv output/zprime/* out/${OUTDIR}/sys$n/
+
+
+let "n = $n + 1"
+done
+
+date
+echo "Add is done"

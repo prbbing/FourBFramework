@@ -1,0 +1,53 @@
+# Developed at ASC ANL
+# S.Chekanov (ANL). chakanau@hep.anl.gov
+# Feb. 2010 
+
+include ${ROOTSYS}/etc/Makefile.arch
+
+
+# Root variables
+ROOTCFLAGS    = $(shell root-config --nonew --cflags)
+ROOTLIBS      = $(shell root-config --nonew --libs)
+ROOTGTTLIBS   = $(shell root-config --nonew --glibs)
+GRLLIB        = $(shell pwd)
+
+# Assign or add variables
+CXXFLAGS     += $(ROOTCFLAGS)
+LIBS         += $(ROOTLIBS)
+#LIBS         += -L./extrn/CalibrationDataInterface/scripts -lCalibrationDataInterface
+#LIBS         += -L./extrn/JetUncertainties/StandAlone      -lJetUncertainties
+
+#LIBS         += -L./JetResolution/StandAlone         -lJERProvider
+#LIBS         += -L./JetUncertainties/StandAlone      -lJetUncertainties
+
+SOURCE_FILES := $(shell ls -1 *.cxx)
+SOURCE_FILES += $(shell ls -1 src/*.cxx)
+
+INCLUDE1= -I./inc
+INCLUDE2= -I.
+#INCLUDE3= -I./extrn/CalibrationDataInterface
+
+# build object files 
+objects       = $(patsubst %.cxx,%.o,$(SOURCE_FILES))
+
+
+%.o: %.cxx
+	$(CXX) $(OPT) $(CXXFLAGS) -Dmontecarlo $(INCLUDE1) $(INCLUDE2)  -o $@ -c $<
+
+Tasks:    clean copy main remove_h 
+
+copy:
+	cp -f analysis_mc.h  analysis.h 
+remove_h:
+	rm -f analysis.h
+tar:
+	rm -f ana.tgz; cd ../; tar -cvzf ana.tgz --exclude='*.o' --exclude='*.root' \
+	--exclude='*.log'  --exclude='*.tup' --exclude='*.eps' --exclude='*.png' --exclude='*.log.gz'\
+	--exclude='main' --exclude='*.root.log.gz' --exclude='*.so' --exclude='*~' --exclude='*.pyc' ana; \
+        mv ana.tgz ana/; cd ana; 
+
+main: $(objects)
+	$(LD) $(LDFLAGS) $^ $(LIBS) $(OutPutOpt)$@
+
+clean:
+	@rm -f *.o  main *~ src/*.o src/*~ inc/*~; echo "Clear.." 

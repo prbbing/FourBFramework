@@ -1,0 +1,47 @@
+import sys
+sys.path.append("modules/")
+import math
+
+
+print 'Number of arguments:', len(sys.argv), 'arguments.'
+print 'Argument List:', str(sys.argv)
+print 'Use as: script.py -b 0 (or 1,2)'
+myinput="interactive"
+xdir=""
+cross=0
+expected_pb=1000.
+if (len(sys.argv) ==2):
+   myinput = sys.argv[1]
+print "Mode=",myinput
+
+# import atlas styles
+from AtlasStyle import *
+from AtlasUtils import *
+from initialize  import *
+from global_module import *
+# from array import array
+# from functions import *
+from ROOT import THStack, TGraphAsymmErrors
+
+
+gROOT.Reset()
+gStyle.SetOptStat(111111)
+
+gROOT.SetStyle("ATLAS");
+
+#=======================================
+ff=TFile("BJetTriggerEff-00-01-01.root")
+h=ff.Get("Pt_offBTag70_bMedium_Total")
+
+for i in xrane(1,h.nBins()):
+  
+# write SF and Err
+cfile="figs/xcross_"+cfilename.d"
+fff=open(cfile,"w")
+fff.write("# mass  x-section pb\n")
+for i in xrane(1,h.nBins()):
+     
+fff.close()
+print cfile, " is done"
+#print  "Write with cross sections written=",out
+

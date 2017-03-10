@@ -1,0 +1,245 @@
+# global constants and functions
+# S.Chekanov (ANL)
+
+import random
+import sys
+sys.path.append("modules/")
+# import atlas styles
+from AtlasStyle import *
+from AtlasUtils import *
+from ROOT import *
+from array import *
+from math import *
+import ROOT
+from ROOT import TFile
+import math
+
+
+PTlab="p_{T}>0.65 TeV |#eta|<0.8"
+labelSig="140<M_{jet}<200 GeV"
+labelBkg="40<M_{jet}<120 GeV"
+size_line=2
+size_symbol=1.0
+size_title=0.04
+size_label=0.03
+LUMI=10000.0
+
+# color styles for NLO
+color_nlo1=32
+style_nlo1=3002
+color_nlo2=41
+style_nlo2=3004
+
+ErrorsColor=color_nlo1
+
+
+def removeRange(name,histo,min,max):
+    # if (name.find("PT")>-1):
+    for m in range(min,max,1): # set to 0  
+         histo.SetBinContent(m,0)
+         histo.SetBinError(m,0)
+    return histo
+
+def removeRange1(histo,min,max):
+    minBin = histo.GetZaxis().FindFixBin(min) ;
+    maxBin = histo.GetZaxis().FindFixBin(max) ;
+    nBinX = histo.GetNbinsX() ;
+    nBinY = histo.GetNbinsY() ;
+    for m in range(min,max,1): # set to 0  
+      for i in range(1, nBinX+1): 
+        for j in range(1, nBinY + 1):
+           histo.SetBinContent(i, j, m, 0)
+           histo.SetBinError(i, j, m, 0)
+    return histo
+
+
+def drawXAxis(sf,gPad,XMIN,YMIN,XMAX,YMAX,nameX,nameY):
+ h=gPad.DrawFrame(XMIN,YMIN,XMAX,YMAX);
+ ay=h.GetYaxis();
+ ay.SetLabelFont(42)
+
+ if (sf==1): 
+             ay.SetLabelSize(0.05)
+             ay.SetTitleSize(0.05)
+
+ if (sf==2 or sf==3): 
+             ay.SetLabelSize(0.10)
+ if (sf==20):
+             ay.SetLabelSize(0.18)
+ if (sf==30):
+             ay.SetLabelSize(0.12)
+             
+# ay.SetTitleSize(0.1)
+ ay.SetNdivisions(505);
+ if (sf==1): ay.SetTitle( nameY )
+ # ay.Draw("same")
+ ax=h.GetXaxis(); 
+ if (sf==1 or sf==2): ax.SetTitle( nameX );
+ if (sf==30): ax.SetTitle( nameX );
+ ax.SetTitleOffset(1.2)
+ ay.SetTitleOffset(1.2)
+
+ ax.SetLabelFont(42)
+ # ax.SetTitleFont(42)
+ ay.SetLabelFont(42)
+ # ay.SetTitleFont(42)
+ ax.SetLabelSize(0.10)
+ ax.SetTitleSize(0.12)
+ if (sf==30): 
+          ax.SetLabelSize(0.12)
+          ax.SetTitleSize(0.14)
+ ax.Draw("same");
+
+
+
+def getHistoStyle(h1,style=1,col=21,xlab="none",ylab="none"):
+           global size_symbol,size_label,size_title,size_line
+           h1.Sumw2()
+           h1.SetTitle("");
+           h1.SetFillColor(col)
+           h1.SetLineStyle(style)
+           h1.SetLineWidth(size_line)
+           h1.SetMarkerStyle(20)
+           h1.SetMarkerSize(size_symbol)
+           h1.SetStats(0)
+           # if (h1.Integral()>0):  h1.Scale(1/h1.Integral());
+           h1.SetAxisRange(0,0.15,"y");
+           ax=h1.GetXaxis(); ax.SetTitleOffset(0.8)
+           ax.SetTitle( xlab );
+           ay=h1.GetYaxis(); ay.SetTitleOffset(1.2)
+           ay.SetTitle( ylab );
+           ax.SetTitleColor(1); ay.SetTitleColor(1);
+           ax.SetTitleOffset(1.1); ay.SetTitleOffset(1.6)
+           ax.SetTitleSize(size_title); ay.SetTitleSize(size_title);
+           ax.SetLabelSize(size_label); ay.SetLabelSize(size_label);
+           ax.SetLabelOffset(.015); ay.SetLabelOffset(.015);
+           return h1,ax,ay
+
+
+# get cross section from histogram
+def getCross(h1,min,max):
+     sum1=0
+     for i in range(h1.GetNbinsX()):
+       y=h1.GetBinContent(i+1)
+       ey=h1.GetBinError(i+1)
+       x=h1.GetBinCenter(i+1)
+       ex=h1.GetBinWidth(i+1)/2.0
+       if x>min and x<max:
+                       sum1=sum1+y*h1.GetBinWidth(i+1)
+                       # print x, "between=",min,max,y," accumulated=",sum1 
+     return sum1
+
+
+def getCrossData(g1,min,max):
+  X1 =g1.GetX();
+  Y1 =g1.GetY();
+  sum1=0
+  sum2=0;
+  sum3=0;
+  # print "Nr points=",g1.GetN()
+  for i in range(g1.GetN()):
+     x1=X1[i]
+     y1=Y1[i]
+     dx1h  = g1.GetErrorXhigh(i) #  EXhigh1[i]
+     dx1l  = g1.GetErrorXlow(i)  # GetErrorXlow EXlow1[i]
+     dy1h  = g1.GetErrorYhigh(i) #  EYhigh1[i];
+     dy1l  = g1.GetErrorYlow(i)  #  EYlow2 [i];
+     # print x1,y1,dx1h+dx1l
+     if x1>min and x1<max:
+                     sum1=sum1+y1*(dx1h+dx1l)
+                     sum2=sum2+(dy1h)*(dx1h+dx1l)
+                     sum3=sum3+(dy1l)*(dx1h+dx1l)
+  return [sum1,sum2,sum3]
+
+def getLimit(scale,zp1,allbck,maxiter):
+   signal=zp1.Clone()
+   background=allbck.Clone()
+   signal.Scale(scale)
+   #print "Run Scale=", scale
+   hs=THStack("hs","Signal and background compared to data...");
+   allbck.SetFillColor(10)
+   hs.Add(background);
+   hs.Add(signal);
+   #hs.Draw("same hist")
+   data=background.Clone()
+   data.Add(signal)
+   n = 2
+   errs = ROOT.TVectorD(n)
+   errb = ROOT.TVectorD(n)
+   for i in range(0,n):
+     errs[i]=0.05
+     errb[i]=0.05
+   names = ROOT.TObjArray();
+   name1 = ROOT.TObjString("bg uncertainty");
+   name2 = ROOT.TObjString("sig uncertainty");
+   names.AddLast(name1);
+   names.AddLast(name2);
+#   mydatasource = TLimitDataSource_fromVoid(signal,allbck,data,ROOT.AsCObject(errs),ROOT.AsCObject(errb),names);
+   mydatasource = TLimitDataSource(signal,allbck,data,ROOT.AsCObject(errs),ROOT.AsCObject(errb),names);
+   # print "Computing limits with stat systematics... "
+   mystatconfidence = TLimit.ComputeLimit(mydatasource,maxiter,True);
+   # print "CLs    : ",   mystatconfidence.CLs()
+   # print "CLsb   : ",   mystatconfidence.CLsb()
+   # print "CLb    : ",   mystatconfidence.CLb() 
+   #print "< CLs >  : ", mystatconfidence.GetExpectedCLs_b()
+   #print "< CLsb > : ",  mystatconfidence.GetExpectedCLsb_b() 
+   #print "< CLb >  : ",  mystatconfidence.GetExpectedCLb_b() 
+   Probab=1-mystatconfidence.CLb()
+   # "Probability that background fluctuates to the signal ",1-mystatconfidence.CLb()
+   return Probab
+
+
+def getScale95(zp1,allbck):
+  # 95% exclusion
+  probab=0.05
+  error=0.004
+  max=50000
+  lim=getLimit(1,zp1,allbck,max)
+  scale=1
+  foundScale=0
+  for j in range(10000):
+    if lim<(probab-error):
+               scale=(0.95+0.01*random.random())*scale
+               #if lim==0: scale=scale/10.0; 
+               #if (lim!=0 and lim<0.01*probab):   scale=scale/(1.05+0.01*random.random()) 
+               #if (lim>0.01*probab and lim<0.1*probab):   scale=scale-(0.2+0.01*random.random()) 
+               #if (lim>0.1*probab and lim<0.5*probab):    scale=scale-(0.1+0.01*random.random())
+               #if (lim>0.5*probab):    scale=scale-(0.05+0.01*random.random())
+               lim=getLimit(scale,zp1,allbck,max)
+    if lim>(probab+error):
+               scale=scale+1.0+0.01*random.random()  
+               if (lim-probab>0.1 and lim-probab<0.2): scale=(1.2+0.1*random.random())*scale # make faster! 
+               if (lim-probab>0.2 and lim-probab<0.4): scale=(1.3+0.1*random.random())*scale # make faster! 
+               if (lim-probab>0.4): scale=1.5*scale # make faster! 
+               lim=getLimit(scale,zp1,allbck,max)
+    print "Iteration=",j," probab for fluct=",lim," scale=", scale
+    if (lim>probab-error and lim<probab+error):
+               foundScale=scale
+               print "Scale=", scale, "is found"," excl.=",lim
+               break
+  return foundScale
+
+
+# cross section and numbers
+def getNumbers(Mass,file, allbck, NN, kfactor):
+   fz1prime=TFile(file)
+   zp1=fz1prime.Get("jet_massjetjet_"+str(NN));
+
+   fcross=fz1prime.Get("cross")
+   zp1Lumi=fcross.GetBinContent(3)/fb # lumi in fb
+   zp1Scale=LUMI/zp1Lumi
+   zp1.Scale(kfactor*zp1Scale/zp1.GetBinWidth(1))
+
+   # assume 2 sigma arround the peak
+   #xmin=Mass*1000.0-2.0*1000
+   #xmax=Mass*1000.0+2.0*1000
+   #TH1range(zp1,xmin,xmax)
+   #TH1range(allbck,xmin,xmax)
+
+   foundScale=getScale95(zp1,allbck)
+   CrossZP1=fcross.GetBinContent(1)*fb # cross section in fb 
+   print "Found scale=",foundScale, " for ", file
+   print "Original cross section [fb]=",CrossZP1
+   print "95% exclusion limit sigma * Br [fb] = ",CrossZP1*foundScale
+   return CrossZP1,CrossZP1*foundScale
+

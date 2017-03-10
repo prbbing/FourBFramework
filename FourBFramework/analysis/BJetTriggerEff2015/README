@@ -1,0 +1,18 @@
+00-00-01:
+  April 1st, 
+  First Version with all operating points
+  Data - no systematics
+  MC   - MC Menu
+
+00-01-00:
+  April 21st, 
+  First Version with systematics, 
+  Corrected MC + systematics as described here:
+     https://twiki.cern.ch/twiki/bin/view/Atlas/TrigBjetCalibration2015
+
+
+00-01-01:
+  April 22nd, 
+  Same as 00-01-00, but with non-bjet efficiencies included. 
+  The non-b efficiencies have only statistical uncertianties
+
