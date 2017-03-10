@@ -1,5 +1,4 @@
 // put here some global variables 
-#include <iostream>
 using namespace std;
 
 #include<iostream>
@@ -11,45 +10,25 @@ using namespace std;
 #include <algorithm>
 #include <vector>
 
-
 // constructor
 Global::Global() {
 
+  timer.Start();
+  nev = 0;
+  debug=false; 
+  systematics=0;
+  MaxEvents=1e12;
 
-    timer.Start();
-    nev = 0;
-    debug=false; 
-    systematics=0;
-    MaxEvents=1e12;
-
- // min PT to trigger data fill 
- // jet/electrons have different pT!
-  PT_CUT=410.0;
-  ETA_CUT=2.4;
-  cout << "########  Cuts=" << endl;
-  cout << "         minPT=" << PT_CUT << endl;
-  cout << "         maxEta=" << ETA_CUT << endl;
-//  for (int i = 0; i<tilerun.size();i++)cout<<tilerun[i]<<";"<<tilelb[i]<<";"<<tileevt[i]<<endl;
 }
-
-
 
 // destructor
 Global::~Global () {
-
     cout << "real time=" << timer.RealTime() << endl;
     timer.Stop();
-
 }
 
-
-
-
 // read ntuple list
-void Global::getNtuples(string xname)
-{
-
-
+void Global::getNtuples(string xname) {
     string name="inputs/"+xname;
     ifstream myfile;
     myfile.open(name.c_str(), ios::in);
@@ -80,12 +59,8 @@ void Global::getNtuples(string xname)
 
 }
 
-
-
 // read initial parameters
-void Global::getIni()
-{
-
+void Global::getIni() {
     nev=0;
     string name="main.ini";
     ifstream myfile;
@@ -97,8 +72,6 @@ void Global::getIni()
     } else {
         cout << "\nRead file=" << name << endl;
     }
-
-
 
     string message;
     int    number;

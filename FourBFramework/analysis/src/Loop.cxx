@@ -1,28 +1,6 @@
-/*
- *      Loop.cxx
- *
- *      Copyright 2010 Sergei Chekanov <chakanau@hep.anl.gov> ANL
- *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
- *
- *      This program is distributed in the hope that it will be useful,
- *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
- *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
- */
-
-
-
 #include "Ana.h"
 #include "Global.h"
+#include "Preselection.h"
 #include "SystemOfUnits.h"
 #include "Histo.h"
 #include "TSpline.h"
@@ -33,6 +11,7 @@
 using namespace std;
 
 extern Global glob;
+extern Preselection  pre;
 extern Histo  h;
 
 // Event loop.
@@ -115,7 +94,7 @@ double Ana::findValue(vector<int> indices, string var) {
     if (var == "dphi") value = j_1.DeltaPhi(j_2);
     if (var == "dR")   value = j_1.DeltaR(j_2);
     if (var == "deta") value = abs(j_1.Eta() - j_2.Eta()); 
-    if (var == "ystar") value = abs(j_1.Rapidity() - j_2.Rapidity())/2; 
+    if (var == "ystar") value = (j_1.Rapidity() - j_2.Rapidity())/2; 
   }
   return value; 
 }
@@ -181,15 +160,15 @@ Ana::channelDecision(vector<int> indices, string channel){
 
 //
 bool
-Ana::passPreselection(vector<int> indices, TH1F* cutflow, double weight){
+Ana::passPreselection(vector<int> indices, TH1F* cutflow, double weigh){
   bool pass = false;
-  if (find(passedTriggers->begin(), passedTriggers->end(), "HLT_j380") == passedTriggers->end()) return pass;
+  if (find(passedTriggers->begin(), passedTriggers->end(), pre.trigger) == passedTriggers->end()) return pass;
   cutflow->Fill(0.0,weight);
-  if (jet_pt->at(indices.at(0)) < 430) return pass;
+  if (jet_pt->at(indices.at(0)) < pre.pTCut_1) return pass;
   cutflow->Fill(1.0,weight);
-  if (jet_pt->at(indices.at(1)) < 80) return pass;
+  if (jet_pt->at(indices.at(1)) < pre.pTCut_2) return pass;
   cutflow->Fill(2.0,weight);
-  if (abs(jet_eta->at(indices.at(0))) > glob.ETA_CUT|| abs(jet_eta->at(indices.at(1))) > glob.ETA_CUT) return pass;
+  if (abs(jet_eta->at(indices.at(0))) > pre.etaCut|| abs(jet_eta->at(indices.at(1))) > pre.etaCut) return pass;
   cutflow->Fill(3.0,weight);
   return pass = true;
 } 

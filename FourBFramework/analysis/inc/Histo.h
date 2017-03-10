@@ -1,10 +1,3 @@
-/***************************************************************************
- *            histo.h
- *
- *  Fri Sep 21 16:08:23 2007
- *  Copyright  2007  chekanov
- *  chekanov@mail.desy.de
- ****************************************************************************/
 using namespace std;
 #include<iostream>
 #include "TROOT.h"
@@ -17,9 +10,7 @@ using namespace std;
 class Histo {
 
   public:
-
-    int runNumber,eventNumber,lumiBlock;
-   
+    
     vector<TH1D*> oneDHistograms; 
      
     map<string, vector<double>> oneDHistogramPara;
@@ -40,7 +31,7 @@ class Histo {
 
     TH1F *cutflow;
  
-// ---- do not modify below -----
+    // ---- do not modify below -----
     Histo();
     virtual ~Histo();
     void setHistograms(string channel);

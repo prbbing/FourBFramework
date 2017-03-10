@@ -1,20 +1,6 @@
-/***************************************************************************
- *            global.h
- *
- *  Fri Sep 21 15:58:02 2007
- *  Copyright  2007  chekanov
- *  chekanov@mail.desy.de
- ****************************************************************************/
-
-
-
-
 using namespace std;
 #include<iostream>
 #include<fstream>
-
-// S.Chekanov (ANL)
-
 #include "TFile.h"
 #include "TH1D.h"
 #include "TStopwatch.h"
@@ -23,23 +9,8 @@ using namespace std;
 #include <vector>
 #include <map>
 
-//#include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
-//#include "CalibrationDataInterface/CalibrationDataVariables.h"
-//#include "CalibrationDataInterface/Uncertainty.h"
-
-//using Analysis::CalibrationDataVariables;
-//using Analysis::CalibrationDataContainer;
-//using Analysis::UncertaintyResult;
-
 class Global {
-
   public:
-
-
-//    Analysis::CalibrationDataInterfaceROOT calib; 
-//    Analysis::CalibrationDataVariables ajet;
-//    Analysis::Uncertainty uncertainty = Analysis::Total;
-
     Global ();
     virtual ~Global ();
 
@@ -64,8 +35,6 @@ class Global {
     ofstream outBsf;
     ifstream inBsf;
 
-    double PT_CUT;
-    double ETA_CUT;
     vector <double> tilerun,tilelb,tileevt;
     TSpline3* line;
     TSpline3* line1;
@@ -99,6 +68,4 @@ class Global {
                 endl; 
        for (int i = 0; i<60;i++) cout<<"dobtagSF1para[" << i << "]="<<dobtagSF1para[i] <<endl;
     };
- 
-
 };
