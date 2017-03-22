@@ -11,6 +11,7 @@ class Preselection {
     virtual ~Preselection ();
     double pTCut_1;
     double pTCut_2;
+    double pTCut_3;
     double etaCut;
     double yStarCut;
     string trigger;

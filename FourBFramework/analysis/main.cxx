@@ -64,34 +64,37 @@ int main(int argc, char **argv)
    string channel = channels.at(c); 
    h.setChannel(channel);
    h.setHistograms(channel);
+   glob.nev = 0;
+   const int Nfiles = glob.ntup.size();
+   cout << " -> Nr of files to read:" << Nfiles << endl;
+   cout << " -> Nr of events to process:" <<  glob.MaxEvents << endl;
 
-  const int Nfiles = glob.ntup.size();
-  cout << " -> Nr of files to read:" << Nfiles << endl;
-  cout << " -> Nr of events to process:" <<  glob.MaxEvents << endl;
+   for (int i = 0; i < Nfiles; i++) {
+     float donefiles= (float)i / (float)Nfiles;
+     cout << "\nPercentage done = " << (int)(donefiles*100) <<  " %" << endl;
+     cout << "\nfile to read:" << glob.ntup[i] << endl;
 
-  for (int i = 0; i < Nfiles; i++) {
-    float donefiles= (float)i / (float)Nfiles;
-    cout << "\nPercentage done = " << (int)(donefiles*100) <<  " %" << endl;
-    cout << "\nfile to read:" << glob.ntup[i] << endl;
+     TFile f(glob.ntup[i].c_str());
+     if (f.IsZombie()) continue; 
 
-    TFile f(glob.ntup[i].c_str());
-    if (f.IsZombie()) continue; 
+     TTree *tree = (TTree *)f.Get(glob.ttree.c_str());
+     glob.m_run=i;
 
-    TTree *tree = (TTree *)f.Get(glob.ttree.c_str());
-    glob.m_run=i;
-
-    if (glob.nev >= glob.MaxEvents) break;
+     if (glob.nev >= glob.MaxEvents) break;
         
-    Ana ana(tree, channel);
+     Ana ana(tree, channel);
 
-    ana.Notify();
+     ana.Notify();
+     h.setSkim(channel,i,tree);
         
-    ana.Loop(channel);      // Loop on all entries
+     ana.Loop(channel,i);      // Loop on all entries
+     
+     h.writeTrees(channel,i);
 
-    delete tree;
-    f.Close();
-     }
-  }
+     delete tree;
+     f.Close();
+   }
+ }
   // write histograms
   h.finalize();
   cout << "--> Number of events requested:" <<  glob.MaxEvents  << endl;
