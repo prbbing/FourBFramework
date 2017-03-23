@@ -62,12 +62,20 @@ int main(int argc, char **argv)
  h.setParameters();
  for (int c = 0; c < (int)channels.size();c++){
    string channel = channels.at(c); 
-   h.setChannel(channel);
-   h.setHistograms(channel);
+    
    glob.nev = 0;
    const int Nfiles = glob.ntup.size();
    cout << " -> Nr of files to read:" << Nfiles << endl;
    cout << " -> Nr of events to process:" <<  glob.MaxEvents << endl;
+   if (!Nfiles) break;   
+   glob.channelAcceptance.insert(pair<string,int>(channel,0));  
+ 
+   //Get the cutflow from ntuple
+   TFile scout(glob.ntup[0].c_str());
+   TH1F* cutflow = (TH1F*)scout.Get("cutflow");
+   h.setChannel(channel);
+   h.setHistograms(channel, cutflow);
+   scout.Close(); 
 
    for (int i = 0; i < Nfiles; i++) {
      float donefiles= (float)i / (float)Nfiles;
@@ -94,6 +102,7 @@ int main(int argc, char **argv)
      delete tree;
      f.Close();
    }
+   h.fillCutflow(channel);
  }
   // write histograms
   h.finalize();

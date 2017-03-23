@@ -63,11 +63,14 @@ void Histo::writeTrees(string channel, int index) {
     ostringstream temp;
     temp<<index;
     string nameSeg = channel+"_"+temp.str();
-    //skimFiles[nameSeg]->cd();
     skimTrees[nameSeg]->Write();
-    //skimFiles[nameSeg]->Close(); 
     delete skimTrees[nameSeg];
-    //RootFile->cd();
+}
+
+void Histo::fillCutflow(string channel) {
+
+    cutflow->SetBinContent(cutflow->GetNbinsX(), glob.channelAcceptance[channel]);    
+    
 }
 
 // constructor
@@ -128,7 +131,7 @@ void Histo::setParameters() {
   twoDHistogramPara.insert(pair<string, vector<vector<double>>>("dphi_34_vs_dphi_24",{dphiBinning,dphiBinning}));     
 }
 
-void Histo::setHistograms(string channel) {
+void Histo::setHistograms(string channel, TH1F *inputCutflow) {
   RootFile->cd(channel.c_str());
   map<string, vector<double>>::iterator it; 
   for(it=oneDHistogramPara.begin(); it!=oneDHistogramPara.end(); it++){
@@ -144,16 +147,19 @@ void Histo::setHistograms(string channel) {
     histTmp->Sumw2();
     twoDHistograms[channel].push_back(histTmp);
   }
-  cutflow = new TH1F("cutflow","cutflow",8,0,8);
+  cutflow = new TH1F("cutflow","cutflow",inputCutflow->GetNbinsX()+6,0,inputCutflow->GetNbinsX()+6);
   cutflow->Sumw2();
-  cutflow->GetXaxis()->SetBinLabel(1,"Original Number of Events");
-  cutflow->GetXaxis()->SetBinLabel(2,"Skimmed Number of Events");
-  cutflow->GetXaxis()->SetBinLabel(3,"HLT_4j25");
-  cutflow->GetXaxis()->SetBinLabel(4,"Leading Jet pT > 250 GeV");
-  cutflow->GetXaxis()->SetBinLabel(5,"Sub-leading Jet pT > 250 GeV");
-  cutflow->GetXaxis()->SetBinLabel(6,"Third-leading Jet pT > 120 GeV");
-  cutflow->GetXaxis()->SetBinLabel(7,"All jet |#eta| < 2.5");
-  cutflow->GetXaxis()->SetBinLabel(8,"Pass Region Selection");
+  for (int i = 1; i < inputCutflow->GetNbinsX(); i++) {
+    cutflow->GetXaxis()->SetBinLabel(i,inputCutflow->GetXaxis()->GetBinLabel(i));
+    cutflow->SetBinContent(i,inputCutflow->GetBinContent(i));
+    cutflow->SetBinError(i,inputCutflow->GetBinError(i));
+  }
+  cutflow->GetXaxis()->SetBinLabel(inputCutflow->GetNbinsX()+1,"HLT_4j25");
+  cutflow->GetXaxis()->SetBinLabel(inputCutflow->GetNbinsX()+2,"Leading Jet pT > 250 GeV");
+  cutflow->GetXaxis()->SetBinLabel(inputCutflow->GetNbinsX()+3,"Sub-leading Jet pT > 250 GeV");
+  cutflow->GetXaxis()->SetBinLabel(inputCutflow->GetNbinsX()+4,"Third-leading Jet pT > 120 GeV");
+  cutflow->GetXaxis()->SetBinLabel(inputCutflow->GetNbinsX()+5,"All jet |#eta| < 2.5");
+  cutflow->GetXaxis()->SetBinLabel(inputCutflow->GetNbinsX()+6,"Pass Region Selection");
 }
 
 /*

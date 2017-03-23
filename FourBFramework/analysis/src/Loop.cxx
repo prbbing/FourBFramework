@@ -68,7 +68,7 @@ void Ana::Loop(string channel, int index)
       //=================================
      
       if (!channelDecision(selectedSorted, channel)) continue;
-      
+      glob.channelAcceptance[channel] = glob.channelAcceptance[channel]+1; 
       //===============
       //fill skim trees
       //===============
@@ -203,14 +203,14 @@ bool
 Ana::passPreselection(vector<int> indices, TH1F* cutflow, double weigh){
   bool pass = false;
   if (find(passedTriggers->begin(), passedTriggers->end(), pre.trigger) == passedTriggers->end()) return pass;
-  cutflow->Fill(2.0,weight);
+  cutflow->Fill(float(cutflow->GetNbinsX() - 6));
   if (jet_pt->at(indices.at(0)) < pre.pTCut_1) return pass;
-  cutflow->Fill(3.0,weight);
+  cutflow->Fill(float(cutflow->GetNbinsX() - 5));
   if (jet_pt->at(indices.at(1)) < pre.pTCut_2) return pass;
-  cutflow->Fill(4.0,weight);
+  cutflow->Fill(float(cutflow->GetNbinsX() - 4));
   if (jet_pt->at(indices.at(2)) < pre.pTCut_3) return pass;
-  cutflow->Fill(5.0,weight);
+  cutflow->Fill(float(cutflow->GetNbinsX() - 3));
   if (abs(jet_eta->at(indices.at(0))) > pre.etaCut|| abs(jet_eta->at(indices.at(1))) > pre.etaCut ||  abs(jet_eta->at(indices.at(2))) > pre.etaCut || abs(jet_eta->at(indices.at(3))) > pre.etaCut ) return pass;
-  cutflow->Fill(6.0,weight);
+  cutflow->Fill(float(cutflow->GetNbinsX() - 2));
   return pass = true;
 } 

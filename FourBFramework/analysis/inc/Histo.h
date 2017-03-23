@@ -38,11 +38,12 @@ class Histo {
     // ---- do not modify below -----
     Histo();
     virtual ~Histo();
-    void setHistograms(string channel);
+    void setHistograms(string channel, TH1F *inputCutflow);
     void setOutput(string output);
     void setChannel(string channel);
     void setSkim(string channel, int index, TTree *inputTree);
     void writeTrees(string channel, int index);
+    void fillCutflow(string channel);
     void setParameters();
     void finalize();
     char *ffile;
