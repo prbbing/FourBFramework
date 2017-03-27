@@ -53,6 +53,7 @@ void Ana::Loop(string channel, int index)
           selected.push_back(i);
       } // end loop over jets 
       
+      //Require at least four jets
       if (selected.size()<=3) continue;
 
       vector<int> selectedSorted;
@@ -62,13 +63,14 @@ void Ana::Loop(string channel, int index)
       //apply channel specific selections
       //=================================
       
-      if (!passPreselection(selectedSorted,h.cutflow,weight)) continue;
+      if (!passPreselection(selectedSorted,h.cutflow,h.cutflowWeighted,weight)) continue;
       //=================================
       //apply channel specific selections
       //=================================
      
       if (!channelDecision(selectedSorted, channel)) continue;
       glob.channelAcceptance[channel] = glob.channelAcceptance[channel]+1; 
+      glob.channelWeightedAcceptance[channel] = glob.channelWeightedAcceptance[channel]+weight; 
       //===============
       //fill skim trees
       //===============
@@ -89,24 +91,31 @@ void Ana::Loop(string channel, int index)
 double Ana::findValue(vector<int> indices, string var) {
   double value = 0;
   if (indices.size() == 1) {
-    if (var == "pt")     value = jet_pt->at(indices.at(0));   
-    if (var == "eta")    value = jet_eta->at(indices.at(0));   
-    if (var == "phi")    value = jet_phi->at(indices.at(0));   
-    if (var == "mv2c10") value = jet_MV2c10->at(indices.at(0));   
-    if (var == "sv1")    value = jet_SV1->at(indices.at(0));   
-    if (var == "ip3d")   value = jet_IP3D->at(indices.at(0));   
+    if (var == "pt")      value = jet_pt->at(indices.at(0));   
+    if (var == "eta")     value = jet_eta->at(indices.at(0));   
+    if (var == "phi")     value = jet_phi->at(indices.at(0));   
+    if (var == "mv2c10")  value = jet_MV2c10->at(indices.at(0));   
+    if (var == "sv1")     value = jet_SV1->at(indices.at(0));   
+    if (var == "ip3d")    value = jet_IP3D->at(indices.at(0));   
+    if (var == "truthId") value = jet_ConeTruthLabelID->at(indices.at(0));   
   }
   if (indices.size() == 2) {
     TLorentzVector j_1 = TLorentzVector(0,0,0,0);
     TLorentzVector j_2 = TLorentzVector(0,0,0,0);
     j_1.SetPtEtaPhiE(jet_pt->at(indices.at(0)),jet_eta->at(indices.at(0)),jet_phi->at(indices.at(0)),jet_E->at(indices.at(0)));
     j_2.SetPtEtaPhiE(jet_pt->at(indices.at(1)),jet_eta->at(indices.at(1)),jet_phi->at(indices.at(1)),jet_E->at(indices.at(1)));
-    if (var == "mjj")    value = (j_1 + j_2).M();
-    if (var == "dphi")   value = j_1.DeltaPhi(j_2);
-    if (var == "dR")     value = j_1.DeltaR(j_2);
-    if (var == "deta")   value = abs(j_1.Eta() - j_2.Eta()); 
-    if (var == "ystar")  value = (j_1.Rapidity() - j_2.Rapidity())/2; 
-    if (var == "mboost") value = (j_1 + j_2).P() * tan(j_1.Angle(j_2.Vect())/2); 
+    if (var == "mjj")        value = (j_1 + j_2).M();
+    if (var == "dphi")       value = abs(j_1.DeltaPhi(j_2));
+    if (var == "dR")         value = j_1.DeltaR(j_2);
+    if (var == "deta")       value = abs(j_1.Eta() - j_2.Eta()); 
+    if (var == "ystar")      value = (j_1.Rapidity() - j_2.Rapidity())/2; 
+    if (var == "mboost")     value = (j_1 + j_2).P() * tan(j_1.Angle(j_2.Vect())/2); 
+    if (var == "angle")      value = j_1.Angle(j_2.Vect()); 
+    if (var == "deltaMass")  value = (j_1 + j_2).M()-(j_1 + j_2).P() * tan(j_1.Angle(j_2.Vect())/2);
+    if (var == "deltaPt")    value = abs(jet_pt->at(indices.at(0)) - jet_pt->at(indices.at(1)));
+    if (var == "sumPVec")    value = (j_1 + j_2).P();
+    if (var == "sumPtVec")   value = (j_1 + j_2).Perp();
+    if (var == "theta")      value = abs((j_1 + j_2).DeltaPhi(j_1)) < abs((j_1 + j_2).DeltaPhi(j_2)) ? abs((j_1 + j_2).DeltaPhi(j_1)):abs((j_1 + j_2).DeltaPhi(j_2)); 
   }
   return value; 
 }
@@ -198,19 +207,24 @@ Ana::channelDecision(vector<int> indices, string channel){
   return pass;
 } 
 
-//
+//Apply preselections and fill the histograms
 bool
-Ana::passPreselection(vector<int> indices, TH1F* cutflow, double weigh){
+Ana::passPreselection(vector<int> indices, TH1F* cutflow, TH1F* cutflowWeighted, double weight){
   bool pass = false;
   if (find(passedTriggers->begin(), passedTriggers->end(), pre.trigger) == passedTriggers->end()) return pass;
   cutflow->Fill(float(cutflow->GetNbinsX() - 6));
+  cutflowWeighted->Fill(float(cutflowWeighted->GetNbinsX() - 6),weight);
   if (jet_pt->at(indices.at(0)) < pre.pTCut_1) return pass;
   cutflow->Fill(float(cutflow->GetNbinsX() - 5));
+  cutflowWeighted->Fill(float(cutflowWeighted->GetNbinsX() - 5),weight);
   if (jet_pt->at(indices.at(1)) < pre.pTCut_2) return pass;
   cutflow->Fill(float(cutflow->GetNbinsX() - 4));
+  cutflowWeighted->Fill(float(cutflowWeighted->GetNbinsX() - 4),weight);
   if (jet_pt->at(indices.at(2)) < pre.pTCut_3) return pass;
   cutflow->Fill(float(cutflow->GetNbinsX() - 3));
+  cutflowWeighted->Fill(float(cutflowWeighted->GetNbinsX() - 3),weight);
   if (abs(jet_eta->at(indices.at(0))) > pre.etaCut|| abs(jet_eta->at(indices.at(1))) > pre.etaCut ||  abs(jet_eta->at(indices.at(2))) > pre.etaCut || abs(jet_eta->at(indices.at(3))) > pre.etaCut ) return pass;
   cutflow->Fill(float(cutflow->GetNbinsX() - 2));
+  cutflowWeighted->Fill(float(cutflowWeighted->GetNbinsX() - 2),weight);
   return pass = true;
 } 

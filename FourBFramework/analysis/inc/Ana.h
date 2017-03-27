@@ -19,6 +19,6 @@ class Ana: public analysis  {
     void fillOneDHistogram(vector<int> indices, vector<TH1D*> hists, double weight); 
     void fillTwoDHistogram(vector<int> indices, vector<TH2D*> hists, double weight); 
     bool channelDecision(vector<int> indices, string channel); 
-    bool passPreselection(vector<int> indices, TH1F* cutflow, double weight);
+    bool passPreselection(vector<int> indices, TH1F* cutflow, TH1F* cutfloWeighted, double weight);
     vector<int> sortIndices(vector<int> indices);
 };

@@ -30,7 +30,8 @@ class Global {
     int systematics;
     int gen_events;
     string ttree;
-    map<string,int> channelAcceptance;    
+    map<string,float> channelAcceptance;    
+    map<string,float> channelWeightedAcceptance;    
 
     ofstream outBsf;
     ifstream inBsf;

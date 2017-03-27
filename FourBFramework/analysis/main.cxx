@@ -68,13 +68,15 @@ int main(int argc, char **argv)
    cout << " -> Nr of files to read:" << Nfiles << endl;
    cout << " -> Nr of events to process:" <<  glob.MaxEvents << endl;
    if (!Nfiles) break;   
-   glob.channelAcceptance.insert(pair<string,int>(channel,0));  
+   glob.channelAcceptance.insert(pair<string,float>(channel,0.0));  
+   glob.channelWeightedAcceptance.insert(pair<string,float>(channel,0.0));  
  
    //Get the cutflow from ntuple
    TFile scout(glob.ntup[0].c_str());
    TH1F* cutflow = (TH1F*)scout.Get("cutflow");
+   TH1F* cutflowWeighted = (TH1F*)scout.Get("cutflow_weighted");
    h.setChannel(channel);
-   h.setHistograms(channel, cutflow);
+   h.setHistograms(channel, cutflow, cutflowWeighted);
    scout.Close(); 
 
    for (int i = 0; i < Nfiles; i++) {
@@ -86,6 +88,8 @@ int main(int argc, char **argv)
      if (f.IsZombie()) continue; 
 
      TTree *tree = (TTree *)f.Get(glob.ttree.c_str());
+     TH1F* cutflow = (TH1F*)f.Get("cutflow");
+     TH1F* cutflowWeighted = (TH1F*)f.Get("cutflow_weighted");
      glob.m_run=i;
 
      if (glob.nev >= glob.MaxEvents) break;
@@ -93,7 +97,7 @@ int main(int argc, char **argv)
      Ana ana(tree, channel);
 
      ana.Notify();
-     h.setSkim(channel,i,tree);
+     h.setSkim(name,channel,i,tree,cutflow,cutflowWeighted);
         
      ana.Loop(channel,i);      // Loop on all entries
      
