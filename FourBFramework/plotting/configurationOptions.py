@@ -26,7 +26,7 @@ ExcluOneBLabel="1 b-tag (1st,2nd)"
 ExcluTwoBLabel="2 b-tag (1st,2nd)"
 IncluOneProbeBLabel="#geq1 b-tag (3rd,4th)"
 ExcluOneProbeBLabel="1 b-tag (3rd,4th)"
-IncluTwoProbeBLabel="2 b-tag (3rd,4th)"
+ExcluTwoProbeBLabel="2 b-tag (3rd,4th)"
 
 qcdSamples = [
     #"JZ0W",
@@ -547,29 +547,36 @@ categories = {
     "Inclusive" : {
         "name"  : "Inclusive",
         "label" : IncluLabel,
+        "color" : 1,
     },
     "InclusiveOneB" : {
         "name"  : "InclusiveOneB",
         "label" : IncluOneBLabel,
+        "color" : 2,
     },
     "ExclusiveOneB" : {
         "name"  : "ExclusiveOneB",
         "label" : ExcluOneBLabel,
+        "color" : 3,
     },
     "ExclusiveTwoB" : {
         "name"  : "ExclusiveTwoB",
         "label" : ExcluTwoBLabel,
+        "color" : 4,
     },
     "InclusiveOneProbeB" : {
         "name"  : "InclusiveOneProbeB",
         "label" : IncluOneProbeBLabel,
+        "color" : 5,
     },
     "ExclusiveOneProbeB" : {
         "name"  : "ExclusiveOneProbeB",
         "label" : ExcluOneProbeBLabel,
+        "color" : 6,
     },
-    "InclusiveTwoProbeB" : {
-        "name"  : "InclusiveTwoProbeB",
-        "label" : IncluTwoProbeBLabel,
+    "ExclusiveTwoProbeB" : {
+        "name"  : "ExclusiveTwoProbeB",
+        "label" : ExcluTwoProbeBLabel,
+        "color" : 7,
     },
 }
