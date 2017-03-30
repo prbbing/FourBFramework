@@ -9,9 +9,9 @@ Preselection::Preselection() {
   // Cuts for all channels
   //======================
   trigger   = "HLT_4j25"; 
-  pTCut_1   = 250.0;
-  pTCut_2   = 250.0;
-  pTCut_3   = 250.0;
+  pTCut_1   = 150.0;
+  pTCut_2   = 150.0;
+  pTCut_3   = 25.0;
   etaCut    = 2.5;
   yStarCut  = 0.8;
   

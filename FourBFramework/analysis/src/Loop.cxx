@@ -180,7 +180,7 @@ vector<int>
 Ana::sortIndices(vector<int> indices){
   map<double,int> pTMap;
   for (int i = 0; i < (int)indices.size(); i++) {
-    pTMap.insert(pair<int,double>(jet_pt->at(indices.at(i)), indices.at(i)));
+    pTMap.insert(pair<double,int>(jet_pt->at(indices.at(i)), indices.at(i)));
   }
   vector<int> tmp = indices;
   map<double,int>::iterator it; 
@@ -196,14 +196,19 @@ Ana::sortIndices(vector<int> indices){
 bool
 Ana::channelDecision(vector<int> indices, string channel){
   bool pass = false;
-  if (channel == "Inclusive")          pass = true; 
-  else if (channel == "InclusiveOneB")      pass = (jet_MV2c10->at(indices.at(0)) > 0.175848 || jet_MV2c10->at(indices.at(1)) > 0.175848) ? true:false;
-  else if (channel == "ExclusiveOneB")      pass = ((jet_MV2c10->at(indices.at(0)) > 0.175848 && jet_MV2c10->at(indices.at(1)) < 0.175848) || (jet_MV2c10->at(indices.at(0)) < 0.175848 && jet_MV2c10->at(indices.at(1)) > 0.175848)) ? true:false; 
-  else if (channel == "ExclusiveTwoB")      pass = (jet_MV2c10->at(indices.at(0)) > 0.175848 && jet_MV2c10->at(indices.at(1)) > 0.175848) ? true:false;
-  else if (channel == "InclusiveOneProbeB") pass = (jet_MV2c10->at(indices.at(2)) > 0.175848 || jet_MV2c10->at(indices.at(3)) > 0.175848) ? true:false;
-  else if (channel == "ExclusiveOneProbeB") pass = ((jet_MV2c10->at(indices.at(2)) > 0.175848 && jet_MV2c10->at(indices.at(3)) < 0.175848) || (jet_MV2c10->at(indices.at(2)) < 0.175848 && jet_MV2c10->at(indices.at(3)) > 0.175848)) ? true:false;
-  else if (channel == "ExclusiveTwoProbeB") pass = (jet_MV2c10->at(indices.at(2)) > 0.175848 && jet_MV2c10->at(indices.at(3)) > 0.175848) ? true:false; 	
+  if (channel == "Inclusive")              pass = true; 
+  else if (channel == "OneProbeB")         pass = (jet_MV2c10->at(indices.at(0)) > 0.175848 || jet_MV2c10->at(indices.at(1)) > 0.175848) ? true:false;
+  //else if (channel == "ExclusiveOneProbeB")  pass = ((jet_MV2c10->at(indices.at(0)) > 0.175848 && jet_MV2c10->at(indices.at(1)) < 0.175848) || (jet_MV2c10->at(indices.at(0)) < 0.175848 && jet_MV2c10->at(indices.at(1)) > 0.175848)) ? true:false; 
+  else if (channel == "TwoProbeB")         pass = (jet_MV2c10->at(indices.at(0)) > 0.175848 && jet_MV2c10->at(indices.at(1)) > 0.175848) ? true:false;
+  else if (channel == "OneTagB")           pass = (jet_MV2c10->at(indices.at(2)) > 0.175848 || jet_MV2c10->at(indices.at(3)) > 0.175848) ? true:false;
+  //else if (channel == "ExclusiveOneTagB")    pass = ((jet_MV2c10->at(indices.at(2)) > 0.175848 && jet_MV2c10->at(indices.at(3)) < 0.175848) || (jet_MV2c10->at(indices.at(2)) < 0.175848 && jet_MV2c10->at(indices.at(3)) > 0.175848)) ? true:false;
+  else if (channel == "TwoTagB")           pass = (jet_MV2c10->at(indices.at(2)) > 0.175848 && jet_MV2c10->at(indices.at(3)) > 0.175848) ? true:false; 	
+  else if (channel == "OneTagBOneProbeB")  pass = ((jet_MV2c10->at(indices.at(0)) > 0.175848 || jet_MV2c10->at(indices.at(1)) > 0.175848) && (jet_MV2c10->at(indices.at(2)) > 0.175848 || jet_MV2c10->at(indices.at(3)) > 0.175848)) ? true:false; 
+  else if (channel == "OneTagBTwoProbeB")  pass = ((jet_MV2c10->at(indices.at(0)) > 0.175848 && jet_MV2c10->at(indices.at(1)) > 0.175848) && (jet_MV2c10->at(indices.at(2)) > 0.175848 || jet_MV2c10->at(indices.at(3)) > 0.175848)) ? true:false; 
+  else if (channel == "TwoTagBOneProbeB")  pass = ((jet_MV2c10->at(indices.at(0)) > 0.175848 || jet_MV2c10->at(indices.at(1)) > 0.175848) && (jet_MV2c10->at(indices.at(2)) > 0.175848 && jet_MV2c10->at(indices.at(3)) > 0.175848)) ? true:false; 
+  else if (channel == "TwoTagBTwoProbeB")  pass = (jet_MV2c10->at(indices.at(0)) > 0.175848 && jet_MV2c10->at(indices.at(1)) > 0.175848 && jet_MV2c10->at(indices.at(2)) > 0.175848 && jet_MV2c10->at(indices.at(3)) > 0.175848) ? true:false; 
   else cout<<"Warning: Channel "<<channel<<" is not defined!"<<endl;
+
   return pass;
 } 
 

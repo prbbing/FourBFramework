@@ -25,7 +25,7 @@ def drawHollowPlot(histogram, category):
     legend.SetBorderSize(0)
     legend.SetTextFont(42)
     legend.SetFillColor(0)
-    legend.SetTextSize(0.035)
+    legend.SetTextSize(0.03)
     
     hists = []
     for QCD in qcdSamples:
@@ -88,7 +88,7 @@ for histogram in histograms:
     legend_com.SetBorderSize(0)
     legend_com.SetTextFont(42)
     legend_com.SetFillColor(0)
-    legend_com.SetTextSize(0.035)
+    legend_com.SetTextSize(0.03)
     Xmin    =  histograms[histogram]["Xmin"]
     Xmax    =  histograms[histogram]["Xmax"]
     Ymin    =  histograms[histogram]["Ymin"]
@@ -101,7 +101,7 @@ for histogram in histograms:
         channelHists[-1].SetLineWidth(2)
         channelHists[-1].SetAxisRange(Ymin,Ymax,"y")
         channelHists[-1].SetAxisRange(Xmin,Xmax,"x")
-        legend_com.AddEntry(channelHists[-1],categories[category]["name"],"l")
+        legend_com.AddEntry(channelHists[-1],categories[category]["label"],"l")
     
     canvas_com = TCanvas("canvas_"+histograms[histogram]["name"],histograms[histogram]["name"],10,10,600,600)
     canvas_com.Divide(1,1,0.008,0.007)
@@ -110,8 +110,12 @@ for histogram in histograms:
     
     for i in range(0,len(channelHists)):
         if i == 0:
+            if normalize:
+                channelHists[i].Scale(1/channelHists[i].Integral())
             channelHists[i].Draw("histo")
         else:
+            if normalize:
+                channelHists[i].Scale(1/channelHists[i].Integral())
             channelHists[i].Draw("same histo")
     drawAtlasLabel("")
     nameX   =  histograms[histogram]["nameX"]

@@ -20,18 +20,23 @@ CMELUMI="#sqrt{s} = 13 TeV, "+ Lumi #+"/"+Lumi_2016
 CMELUMI_2016="#sqrt{s} = 13 TeV, "+Lumi_2016
 #CMELUMI="#sqrt{s} = 13 TeV, run 283608"
 AtlasLabel="Internal"
-IncluLabel="Inclusive"
-IncluOneBLabel="#geq1 b-tag (1st,2nd)"
-ExcluOneBLabel="1 b-tag (1st,2nd)"
-ExcluTwoBLabel="2 b-tag (1st,2nd)"
-IncluOneProbeBLabel="#geq1 b-tag (3rd,4th)"
-ExcluOneProbeBLabel="1 b-tag (3rd,4th)"
-ExcluTwoProbeBLabel="2 b-tag (3rd,4th)"
+IncluLabel="Pythia8: Inclusive"
+OneProbeBLabel="Pythia8: #geq1 probe b"
+TwoProbeBLabel="Pythia8: ==2 probe b"
+OneTagBLabel="Pythia8: #geq1 tag b"
+TwoTagBLabel="Pythia8: ==2 tag b"
+OneTagBOneProbeBLabel="Pythia8: #geq 1 tag b, #geq 1 probe b"
+OneTagBTwoProbeBLabel="Pythia8: #geq 1 tag b, ==2 probe b"
+TwoTagBOneProbeBLabel="Pythia8: ==2 tag b, #geq 1 probe b"
+TwoTagBTwoProbeBLabel="Pythia8: ==2 tag b, ==2 probe b"
+
+normalize = True
+
 
 qcdSamples = [
     #"JZ0W",
-    #"JZ1W",
-    #"JZ2W",
+    "JZ1W",
+    "JZ2W",
     "JZ3W",
     "JZ4W",
     "JZ5W",
@@ -62,7 +67,7 @@ crossSections = {
 }    
 
 sampleLocations = {"pythiadir" : "/users/bingxuan.liu/FourBFramework/analysis/out/Pythia8_AllChannels/sys0/"}
-outputPath = "./test.root"
+outputPath = "./March29_New_Channels_Normalized_OnlyTagB.root"
 
 colors = {
     "JZ0W" : 1,
@@ -549,34 +554,44 @@ categories = {
         "label" : IncluLabel,
         "color" : 1,
     },
-    "InclusiveOneB" : {
-        "name"  : "InclusiveOneB",
-        "label" : IncluOneBLabel,
-        "color" : 2,
-    },
-    "ExclusiveOneB" : {
-        "name"  : "ExclusiveOneB",
-        "label" : ExcluOneBLabel,
-        "color" : 3,
-    },
-    "ExclusiveTwoB" : {
-        "name"  : "ExclusiveTwoB",
-        "label" : ExcluTwoBLabel,
+#    "OneProbeB" : {
+#        "name"  : "OneProbeB",
+#        "label" : OneProbeBLabel,
+#        "color" : 2,
+#    },
+#    "TwoProbeB" : {
+#        "name"  : "TwoProbeB",
+#        "label" : TwoProbeBLabel,
+#        "color" : 3,
+#    },
+    "OneTagB" : {
+        "name"  : "OneTagB",
+        "label" : OneTagBLabel,
         "color" : 4,
     },
-    "InclusiveOneProbeB" : {
-        "name"  : "InclusiveOneProbeB",
-        "label" : IncluOneProbeBLabel,
+    "TwoTagB" : {
+        "name"  : "TwoTagB",
+        "label" : TwoTagBLabel,
         "color" : 5,
     },
-    "ExclusiveOneProbeB" : {
-        "name"  : "ExclusiveOneProbeB",
-        "label" : ExcluOneProbeBLabel,
-        "color" : 6,
-    },
-    "ExclusiveTwoProbeB" : {
-        "name"  : "ExclusiveTwoProbeB",
-        "label" : ExcluTwoProbeBLabel,
-        "color" : 7,
-    },
+#    "OneTagBOneProbeB" : {
+#        "name"  : "OneTagBOneProbeB",
+#        "label" : OneTagBOneProbeBLabel,
+#        "color" : 6,
+#    },
+#    "OneTagBTwoProbeB" : {
+#        "name"  : "OneTagBTwoProbeB",
+#        "label" : OneTagBTwoProbeBLabel,
+#        "color" : 7,
+#    },
+#    "TwoTagBOneProbeB" : {
+#        "name"  : "TwoTagBOneProbeB",
+#        "label" : TwoTagBOneProbeBLabel,
+#        "color" : 8,
+#    },
+#    "TwoTagBTwoProbeB" : {
+#        "name"  : "TwoTagBTwoProbeB",
+#        "label" : TwoTagBTwoProbeBLabel,
+#        "color" : 9,
+#    },
 }
